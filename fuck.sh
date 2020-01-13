@@ -8,22 +8,62 @@ fail() {
 
 # Print usage and quit
 usage() {
-	printf "Usage: fuck.sh <file>\n"
+	printf "Usage: fuck.sh <send|get> <target>\n"
 	exit 0 
 }
 
+# Check for a command
+check() {
+	command -v "$1" &> /dev/null || fail "fuck.sh requires $1. Please install it or add it to your path."
+}
+
+###
+### Commands
+###
+
+# Send a file to /sdcard/db/$FILE
+send() {
+        printf "Sending $FILE...\n"
+        # Make sure /sdcard/db exists. If not, make it
+        if ! adb shell "ls /sdcard/db" &> /dev/null; then
+                printf "Creating /sdcard/db/\n"
+                adb shell "mkdir /sdcard/db" || fail "Failed to make /sdcard/db"
+        fi
+
+        adb push "$FILE" "/sdcard/db/$FILE" || fail "Failed to push via ADB"
+        printf "Successfully sent $FILE!\n"
+}
+
+get() {
+	printf "Getting $FILE...\n"
+	# Make sure file exists. If not, error
+	if ! adb shell "ls /sdcard/db/$FILE" &> /dev/null; then fail "No file $FILE fonud!"; fi
+	
+	adb pull "/sdcard/db/$FILE" || fail "Failed to pull via ADB"
+	printf "Successfully got $FILE!\n"
+}
+
 # If no arguments are supplied, print the usage and exit
-if [ -z $1 ]; then usage; fi
+if [ -z $1 ] || [ -z $2 ]; then usage; fi
+
+###
+### Setup
+###
+
+# Check for ADB
+check adb
 
 # Make sure ADB is running
 PROC=$(pgrep adb)
 if [ -z $PROC ]; then fail "Please start an ADB server"; fi
-printf "Found ADB at %s\n" $PROC
+printf "Found ADB server at %s\n" $PROC
 
-# Make sure /sdcard/db exists. If not, make it
-if ! adb shell "ls /sdcard/db" &> /dev/null; then
-	printf "Creating /sdcard/db/\n"
-	adb shell "mkdir /sdcard/db" || fail "Failed to make /sdcard/db"
-fi
+COMMAND="$1"
+FILE="$2"
 
-sudo adb push "$1" "/sdcard/db/$1" || fail "Failed to push via ADB"
+# Iterate over command
+case $1 in
+        "send" | "s") send ;;
+        "get" | "g")  get ;;
+	*) fail "$1 is not a valid command!" ;;
+esac
