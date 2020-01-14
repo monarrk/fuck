@@ -12,13 +12,13 @@ fail() {
 
 # Print usage and quit
 usage() {
-	printf "Usage: fuck.sh <send|get|auto> <target>\n"
+	printf "Usage: afuck.sh <send|get|auto> <target>\n"
 	exit 0 
 }
 
 # Check for a command
 check() {
-	command -v "$1" &> /dev/null || fail "fuck.sh requires $1. Please install it or add it to your path."
+	command -v "$1" &> /dev/null || fail "afuck.sh requires $1. Please install it or add it to your path."
 }
 
 ###
@@ -50,13 +50,16 @@ get() {
 
 # Wait for a device to be plugged in and then drop files to it
 auto() {
+	# Init git repo dir isn't already one
+	if [ ! -d .git ]; then git init; fi
+
 	while :; do
 		if [ $(adb devices | wc -l) -gt 2 ]; then
 			printf "Found a new device! Attempting to get $FILE\n"
 			fuck.sh get $FILE || fail "Get failed, aborting."
 
 			printf "Adding to git\n"
-			git add .
+			git add . || fail "Failed to add to git"
 			git commit -m "NEW AUTOMATIC DOWNLOAD $(date)"
 		fi
 		sleep 1
@@ -70,8 +73,9 @@ if [ -z $1 ] || [ -z $2 ]; then usage; fi
 ### Setup
 ###
 
-# Check for ADB
+# Check for dependancies
 check adb
+check git
 
 # Make sure ADB is running
 PROC=$(pgrep adb)
