@@ -14,4 +14,5 @@ To get a file, run `afuck.sh get <file>`, where <file> is a file located in `/sd
 
 ### TODO
 [\*] Recieve files
+
 [ ] Curses TUI

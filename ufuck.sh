@@ -10,9 +10,16 @@ fail() {
 	exit 1
 }
 
+# Print an error message and unmount drive
+safe_fail() {
+	printf "\e[31mERROR!:\e[0m %s...Unmounting drive\n"
+	umount $MNT || fail "Failed to unmount $MNT"
+	exit 1
+}
+
 # Print usage and quit
 usage() {
-	printf "Usage: # ufuck.sh <send|get|auto> <device> <target>\n"
+	printf "Usage:\n\t# ufuck.sh <send|get|auto> <device> <target>\n"
 	exit 0 
 }
 
@@ -31,8 +38,8 @@ send() {
 	mount $DEV $MNT || fail "Failed to mount $DEV"
 
 	# Copy file to mountpoint
-	cp $FILE $MNT/$FILE || fail "Failed to copy $FILE to $MNT"
-	umount $MNT || fail "Failed to unmount $MNT"
+	cp $FILE $MNT/$FILE || safe_fail "Failed to copy $FILE to $MNT"
+	umount $MNT || safe_fail "Failed to unmount $MNT"
         printf "Successfully sent $FILE!\n"
 }
 
@@ -42,8 +49,8 @@ get() {
 	mount $DEV $MNT || fail "Failed to mount $DEV"
 
 	# Copy file from mountpoint
-	cp $FILE $MNT/$FILE || fail "Failed to copy $FILE from $MNT"
-	umount $MNT || fail "Failed to unmount $MNT"
+	cp $FILE $MNT/$FILE || safe_fail "Failed to copy $FILE from $MNT"
+	umount $MNT || safe_fail "Failed to unmount $MNT"
 	printf "Successfully got $FILE!\n"
 }
 
@@ -63,11 +70,18 @@ auto() {
 }
 
 # If no arguments are supplied, print the usage and exit
-if [ -z $1 ] || [ -z $2 ]; then usage; fi
+if [ -z $1 ] || [ -z $2 ] || [ -z $3 ]; then usage; fi
 
 ###
 ### Setup
 ###
+
+# Get Run Commands
+if [ ! -d ~/.config/fuckrc ]; then
+	source ~/.config/fuckrc
+else
+	fail "Please run SETUP.sh to make a fuckrc"
+fi
 
 # Check for dependancies
 check git
@@ -78,9 +92,7 @@ if [ "$EUID" -ne 0 ]; then fail "Please run as root"; fi
 COMMAND="$1"
 DEV="$2"
 FILE="$3"
-
-# Specify the mount point
-MNT="/mnt"
+MNT="$UFUCK_TARGET_DIR"
 
 # Iterate over command
 case $1 in
