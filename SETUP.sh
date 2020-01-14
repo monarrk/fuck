@@ -14,5 +14,5 @@ AFUCK_TARGET_DIR=/sdcard/db
 UFUCK_TARGET_DIR=/mnt
 EOF
 
-cp ufuck.sh /usr/bin/ufuck.sh || fail "Couldn't copy to /usr/bin"
-cp afuck.sh /usr/bin/afuck.sh || fail "Couldn't copy to /usr/bin"
+cp bin/ufuck.sh /usr/bin/ufuck.sh || fail "Couldn't copy to /usr/bin"
+cp bin/afuck.sh /usr/bin/afuck.sh || fail "Couldn't copy to /usr/bin"
