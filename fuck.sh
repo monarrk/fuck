@@ -1,4 +1,8 @@
-#!/usr/bin/env bash
+#!/usr/bin/env bash 
+
+#
+# FRC USB Connection Kit - A tool for easily sending files back and forth offline for FRC scouting 
+#
 
 # Print an error message and return code 1
 fail() {
@@ -48,7 +52,12 @@ get() {
 auto() {
 	while :; do
 		if [ $(adb devices | wc -l) -gt 2 ]; then
-			fuck.sh get $FILE
+			printf "Found a new device! Attempting to get $FILE\n"
+			fuck.sh get $FILE || fail "Get failed, aborting."
+
+			printf "Adding to git\n"
+			git add .
+			git commit -m "NEW AUTOMATIC DOWNLOAD $(date)"
 		fi
 		sleep 1
 	done	

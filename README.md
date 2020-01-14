@@ -15,4 +15,3 @@ To get a file, run `fuck.sh get <file>`, where <file> is a file located in `/sdc
 ### TODO
 [\*] Recieve files
 [ ] Curses TUI
-[ ] Shell-like command wrappers (e.g. fuck.sh ls)
