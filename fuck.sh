@@ -8,7 +8,7 @@ fail() {
 
 # Print usage and quit
 usage() {
-	printf "Usage: fuck.sh <send|get> <target>\n"
+	printf "Usage: fuck.sh <send|get|auto> <target>\n"
 	exit 0 
 }
 
@@ -34,6 +34,7 @@ send() {
         printf "Successfully sent $FILE!\n"
 }
 
+# Get a file from /sdcard/db/$FILE
 get() {
 	printf "Getting $FILE...\n"
 	# Make sure file exists. If not, error
@@ -41,6 +42,16 @@ get() {
 	
 	adb pull "/sdcard/db/$FILE" || fail "Failed to pull via ADB"
 	printf "Successfully got $FILE!\n"
+}
+
+# Wait for a device to be plugged in and then drop files to it
+auto() {
+	while :; do
+		if [ $(adb devices | wc -l) -gt 2 ]; then
+			fuck.sh get $FILE
+		fi
+		sleep 1
+	done	
 }
 
 # If no arguments are supplied, print the usage and exit
@@ -65,5 +76,6 @@ FILE="$2"
 case $1 in
         "send" | "s") send ;;
         "get" | "g")  get ;;
+	"auto" | "a") auto ;;
 	*) fail "$1 is not a valid command!" ;;
 esac
