@@ -59,7 +59,6 @@ auto() {
 	# Init git repo dir isn't already one
 	if [ ! -d .git ]; then git init; fi
 
-
 	while :; do
 		if ls $DEV &> /dev/null; then
 			printf "Found a new device! Attempting to get $FILE\n"
@@ -96,7 +95,6 @@ COMMAND="$1"
 DEV="$2"
 FILE="$3"
 MNT="$UFUCK_TARGET_DIR"
-DEVNUM="$(lsusb | wc -l)"
 
 # Iterate over command
 case $1 in
