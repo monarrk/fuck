@@ -11,7 +11,7 @@ FUCK consists of two tools: AFUCK (FUCK for Android devices), and UFUCK (FUCK fo
 
 ### TODO
 ```
-[\*] Recieve files
+[*] Recieve files
 
 [ ] Curses TUI
 
