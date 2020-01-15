@@ -49,7 +49,7 @@ get() {
 	mount $DEV $MNT || fail "Failed to mount $DEV"
 
 	# Copy file from mountpoint
-	cp $FILE $MNT/$FILE || safe_fail "Failed to copy $FILE from $MNT"
+	cp $MNT/$FILE $FILE || safe_fail "Failed to copy $FILE from $MNT"
 	umount $MNT || safe_fail "Failed to unmount $MNT"
 	printf "Successfully got $FILE!\n"
 }
@@ -59,9 +59,12 @@ auto() {
 	# Init git repo dir isn't already one
 	if [ ! -d .git ]; then git init; fi
 
+
 	while :; do
-		if [ $(adb devices | wc -l) -gt 2 ]; then
+		if ls $DEV &> /dev/null; then
 			printf "Found a new device! Attempting to get $FILE\n"
+
+			ufuck.sh get $DEV $FILE || fail "Failed to get $FILE" 
 			git add . || fail "Failed to add to git"
 			git commit -m "NEW AUTOMATIC DOWNLOAD $(date)"
 		fi
@@ -80,7 +83,7 @@ if [ -z $1 ] || [ -z $2 ] || [ -z $3 ]; then usage; fi
 if [ ! -d ~/.config/fuckrc ]; then
 	source ~/.config/fuckrc
 else
-	fail "Please run SETUP.sh to make a fuckrc"
+	UFUCK_TARGET_DIR=/mnt
 fi
 
 # Check for dependancies
@@ -93,6 +96,7 @@ COMMAND="$1"
 DEV="$2"
 FILE="$3"
 MNT="$UFUCK_TARGET_DIR"
+DEVNUM="$(lsusb | wc -l)"
 
 # Iterate over command
 case $1 in
