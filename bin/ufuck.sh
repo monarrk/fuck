@@ -17,6 +17,14 @@ safe_fail() {
 	exit 1
 }
 
+# Clean up
+cleanup() {
+	printf "Cleaning up..."
+	# If device is mounted, unmount it
+	if [[ $(findmnt -M $MNT) ]]; then umount $MNT; fi
+	printf "OK\n"
+}
+
 # Print usage and quit
 usage() {
 	printf "Usage:\n\t# ufuck.sh <send|get|auto> <device> <target>\n"
@@ -95,6 +103,9 @@ COMMAND="$1"
 DEV="$2"
 FILE="$3"
 MNT="$UFUCK_TARGET_DIR"
+
+# Catch exit
+trap cleanup EXIT
 
 # Iterate over command
 case $1 in
